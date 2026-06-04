@@ -170,7 +170,9 @@ function Check-Update {
     Write-Host "`n🔄 GitHub üzerinden güncelleme kontrolü yapılıyor..." -ForegroundColor Cyan
     
     try {
-        $Latest = Invoke-RestMethod -Uri "https://api.github.com/repos/ompekacar/Optemiz/releases/latest" -TimeoutSec 10
+        $Latest = Invoke-RestMethod -Uri "https://api.github.com/repos/ompekacar/Optemiz/releases/latest" `
+                    -TimeoutSec 15 -ErrorAction Stop
+        
         $LatestVersion = $Latest.tag_name
         $CurrentVersion = "v$ScriptVersion"
 
@@ -180,12 +182,12 @@ function Check-Update {
             Write-Log "Yeni sürüm bulundu: $LatestVersion" "SUCCESS"
         } else {
             Write-Host "`n✅ Optemiz şu anda en güncel sürümde ($CurrentVersion)" -ForegroundColor Green
-            # Sadece bir kez log yazması için
             Write-Log "Güncelleme kontrolü - En son sürüm kullanılıyor" "SUCCESS"
         }
     }
     catch {
-        Write-Host "`n⚠️ Güncelleme kontrolü yapılamadı. İnternet bağlantınızı kontrol edin." -ForegroundColor Yellow
+        Write-Host "`n⚠️ Güncelleme kontrolü şu anda yapılamadı." -ForegroundColor Yellow
+        Write-Host "İnternet bağlantınızı kontrol edin veya daha sonra tekrar deneyin." -ForegroundColor Gray
         Write-Log "Güncelleme kontrolü başarısız" "WARNING"
     }
 }
