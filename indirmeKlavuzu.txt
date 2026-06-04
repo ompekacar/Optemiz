@@ -1,0 +1,16 @@
+Bilgisayarını temizleyip hızlandırmak için yaptığım program bu:
+
+https://github.com/ompekacar/Optemiz
+
+Nasıl indireceksin:
+1. Linke tıkla
+2. Sağda yeşil "Code" butonuna tıkla
+3. "Download ZIP" de
+4. İndirdikten sonra ZIP’i aç
+5. İçinden Start-Optemiz.bat dosyasına SAĞ TIKLA → "Yönetici olarak çalıştır"
+
+İlk seferde Windows engellerse "Daha fazla bilgi" → "Yine de çalıştır" de.
+
+Her şey yolunda giderse 12 numaraya bas (Ultra Bakım).
+
+Sorun yaşarsan bana söyle.
