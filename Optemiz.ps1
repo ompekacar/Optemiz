@@ -5,9 +5,9 @@
 
 $ScriptVersion = "2.1.0"
 $ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
-$ModulePath = "$ScriptRoot\Modules"
+$ModulePath = "$ScriptRoot\Modules"   # ← Bu satır önemli
 
-Clear-Host
+. "$ModulePath\Utils.ps1"             # Utils ilk yüklenmeli
 
 # ====================== GİRİŞ EKRANI ======================
 Write-Host "`n" -ForegroundColor Cyan
