@@ -168,20 +168,16 @@ function Show-MainMenu {
 # ====================== GÜNCELLEME KONTROLÜ ======================
 function Check-Update {
     Write-Host "`n🔄 GitHub üzerinden güncelleme kontrolü yapılıyor..." -ForegroundColor Cyan
-    
     try {
-        $Latest = Invoke-RestMethod -Uri "https://api.github.com/repos/ompekacar/Optemiz/releases/latest" `
-                    -TimeoutSec 15 -ErrorAction Stop
-        
-        $LatestVersion = $Latest.tag_name
-        $CurrentVersion = "v$ScriptVersion"
+        $LatestCommit = Invoke-RestMethod -Uri "https://api.github.com/repos/ompekacar/Optemiz/commits/main" -TimeoutSec 15 -ErrorAction Stop
+        $LatestSha = $LatestCommit.sha
+        $CurrentSha = "a9919007c92948c5d1c761733886c60cc48b1994"  # Buraya kendi sürümünün commit ID’sini yaz
 
-        if ($LatestVersion -ne $CurrentVersion) {
-            Write-Host "`n🎉 Yeni sürüm mevcut: $LatestVersion" -ForegroundColor Green
-            Write-Host "İndirmek için: https://github.com/ompekacar/Optemiz/releases/latest" -ForegroundColor Cyan
-            Write-Log "Yeni sürüm bulundu: $LatestVersion" "SUCCESS"
+        if ($LatestSha -ne $CurrentSha) {
+            Write-Host "`n🚀 Yeni sürüm bulundu: $LatestSha" -ForegroundColor Green
+            Write-Log "Yeni sürüm bulundu: $LatestSha" "SUCCESS"
         } else {
-            Write-Host "`n✅ Optemiz şu anda en güncel sürümde ($CurrentVersion)" -ForegroundColor Green
+            Write-Host "`n✅ Optemiz şu anda en güncel sürümde ($CurrentSha)" -ForegroundColor Green
             Write-Log "Güncelleme kontrolü - En son sürüm kullanılıyor" "SUCCESS"
         }
     }
@@ -191,6 +187,17 @@ function Check-Update {
         Write-Log "Güncelleme kontrolü başarısız" "WARNING"
     }
 }
+
+    catch {
+    Write-Host "`n❌ GitHub'a bağlanılamadı." -ForegroundColor Red
+    Write-Host "Hata: $($_.Exception.Message)" -ForegroundColor Yellow
+    Write-Host "`nOlası Çözümler:" -ForegroundColor Cyan
+    Write-Host "• Windows Defender'ı geçici olarak kapat" -ForegroundColor Gray
+    Write-Host "• Farklı bir internet bağlantısı dene (Mobil hotspot)" -ForegroundColor Gray
+    Write-Host "• Daha sonra tekrar dene" -ForegroundColor Gray
+    Write-Log "Güncelleme kontrolü başarısız" "WARNING"
+}
+
 
 # ====================== ANA DÖNGÜ ======================
 do {
