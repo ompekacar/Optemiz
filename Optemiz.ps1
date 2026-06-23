@@ -1,15 +1,22 @@
 ﻿# =============================================
-# Optemiz v2.1.0 - TAM FİNAL
+# Optemiz v2.1.2 - TAM FİNAL
 # Geliştirici: Grok & Oğuz
 # =============================================
 
-$ScriptVersion = "2.1.0"
+$ScriptVersion = "2.1.2"
 $ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
-$ModulePath = "$ScriptRoot\Modules"   # ← Bu satır önemli
+$ModulePath = "$ScriptRoot\Modules"
 
-. "$ModulePath\Utils.ps1"             # Utils ilk yüklenmeli
+# Utils ilk yüklenmeli
+. "$ModulePath\Utils.ps1"
+
+chcp 65001 | Out-Null
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+
+Write-Log "Optemiz v$ScriptVersion başlatıldı" "SUCCESS"
 
 # ====================== GİRİŞ EKRANI ======================
+Clear-Host
 Write-Host "`n" -ForegroundColor Cyan
 Write-Host "╔══════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
 Write-Host "║           🚀 OPTEMIZ v$ScriptVersion - FINAL                                   ║" -ForegroundColor White
@@ -17,13 +24,6 @@ Write-Host "║          Güçlü ve Tam Otomatik Sistem Bakım Aracı          
 Write-Host "╚══════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
 Write-Host "   Geliştirici : Grok & Oğuz" -ForegroundColor DarkCyan
 Write-Host ""
-
-. "$ModulePath\Utils.ps1"
-
-chcp 65001 | Out-Null
-[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-
-Write-Log "Optemiz v$ScriptVersion başlatıldı" "SUCCESS"
 
 # ====================== FONKSİYONLAR ======================
 function Import-OptemizModule {
@@ -48,7 +48,6 @@ function Get-SystemSnapshot {
 
 function Show-FinalReport {
     param([double]$Duration = 0)
-    
     $End = Get-SystemSnapshot
     $cpuUsage = (Get-Counter '\Processor(_Total)\% Processor Time' -ErrorAction SilentlyContinue).CounterSamples[0].CookedValue
     $cpuUsage = [math]::Round($cpuUsage, 1)
@@ -67,29 +66,48 @@ function Show-FinalReport {
     Write-Host "✅ Bakım tamamlandı. Yeniden başlatmanızı öneririm." -ForegroundColor Green
 }
 
+# ====================== AKILLI ULTRA OTOMATİK BAKIM ======================
 function Start-UltraAutoMaintenance {
     Clear-Host
     Write-Host "`n🚀 ULTRA OTOMATİK BAKIM BAŞLATILIYOR..." -ForegroundColor Magenta
     Write-Host "Hiçbir menü çıkmayacak, tamamen otomatik ilerliyor...`n" -ForegroundColor Yellow
 
-    $StartSnapshot = Get-SystemSnapshot
-    $RepairStart = Get-Date
+    $StartTime = Get-Date
 
     $AutoTasks = @(
-        @{Name="SystemScan";        Display="🛠️ Sistem Taraması";        Action={ sfc /scannow | Out-Null; DISM /Online /Cleanup-Image /RestoreHealth | Out-Null }}
-        @{Name="Cleanup";           Display="🧹 Temizlik";               Action={ 
+        @{Name="SystemScan"; Display="🛠️ Sistem Taraması"; Action={
+            sfc /scannow | Out-Null
+            
+            # AKILLI DISM KONTROLÜ
+            Write-Log "DISM Kontrolü" "INFO" "" "Hızlı sağlık kontrolü yapılıyor..."
+            $dismHealth = DISM /Online /Cleanup-Image /CheckHealth 2>&1
+            
+            if ($dismHealth -match "No component store corruption detected") {
+                Write-Log "DISM Kontrolü" "SUCCESS" "" "Sorun yok → DISM atlandı"
+            } else {
+                $secim = Read-Host "DISM onarımı gerekiyor ama uzun sürebilir. Yapılsın mı? (E/H)"
+                if ($secim -match '^[Ee]$') {
+                    Write-Log "DISM Onarımı" "INFO" "" "Başlıyor..."
+                    DISM /Online /Cleanup-Image /RestoreHealth | Out-Null
+                    Write-Log "DISM Onarımı" "SUCCESS" "" "✅ Tamamlandı"
+                } else {
+                    Write-Log "DISM Onarımı" "WARNING" "" "⏭ Kullanıcı tarafından atlandı"
+                }
+            }
+        }}
+        @{Name="Cleanup"; Display="🧹 Temizlik"; Action={ 
             Remove-Item "$env:TEMP\*", "C:\Windows\Temp\*", "C:\Windows\Prefetch\*" -Recurse -Force -EA SilentlyContinue
             cleanmgr.exe /sagerun:1 | Out-Null 
         }}
-        @{Name="PerformanceTweaks"; Display="⚡ Performans";             Action={ powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c }}
-        @{Name="Privacy";           Display="🔒 Gizlilik";               Action={ 
+        @{Name="PerformanceTweaks"; Display="⚡ Performans"; Action={ powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c }}
+        @{Name="Privacy"; Display="🔒 Gizlilik"; Action={ 
             Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -Value 0 -Type DWord -Force -EA SilentlyContinue 
         }}
-        @{Name="NetworkOptimization"; Display="🌐 Ağ";                   Action={ ipconfig /flushdns | Out-Null; ipconfig /renew | Out-Null }}
-        @{Name="GamingOptimization";  Display="🎮 Oyun";                 Action={ powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c }}
-        @{Name="DriverFix";         Display="🔧 Driver";                 Action={ pnputil /scan-devices | Out-Null }}
-        @{Name="RAMDiagnostics";    Display="🧠 RAM";                    Action={}}
-        @{Name="DiskRepair";        Display="💾 Disk";                   Action={}}
+        @{Name="NetworkOptimization"; Display="🌐 Ağ"; Action={ ipconfig /flushdns | Out-Null; ipconfig /renew | Out-Null }}
+        @{Name="GamingOptimization"; Display="🎮 Oyun"; Action={ powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c }}
+        @{Name="DriverFix"; Display="🔧 Driver"; Action={ pnputil /scan-devices | Out-Null }}
+        @{Name="RAMDiagnostics"; Display="🧠 RAM"; Action={}}
+        @{Name="DiskRepair"; Display="💾 Disk"; Action={}}
     )
 
     for ($i = 0; $i -lt $AutoTasks.Count; $i++) {
@@ -107,18 +125,14 @@ function Start-UltraAutoMaintenance {
 
     Write-Progress -Activity "Ultra Otomatik Bakım" -Completed
 
-    $Duration = [math]::Round(((Get-Date) - $RepairStart).TotalMinutes, 1)
-
+    $Duration = [math]::Round(((Get-Date) - $StartTime).TotalMinutes, 1)
     Show-FinalReport -Duration $Duration
 }
 
 function Check-Update {
     Write-Host "`n🔄 Güncelleme kontrolü yapılıyor..." -ForegroundColor Cyan
-    Write-Host "En son sürüm kontrol ediliyor (GitHub)..." -ForegroundColor Cyan
-
     try {
         $LatestRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/ompekacar/Optemiz/releases/latest" -ErrorAction Stop
-        
         $LatestVersion = $LatestRelease.tag_name
         $CurrentVersion = "v$ScriptVersion"
         
@@ -165,40 +179,6 @@ function Show-MainMenu {
     Write-Host "   Seçiminizi yapın (0-15) → " -ForegroundColor Yellow -NoNewline
 }
 
-# ====================== GÜNCELLEME KONTROLÜ ======================
-function Check-Update {
-    Write-Host "`n🔄 GitHub üzerinden güncelleme kontrolü yapılıyor..." -ForegroundColor Cyan
-    try {
-        $LatestCommit = Invoke-RestMethod -Uri "https://api.github.com/repos/ompekacar/Optemiz/commits/main" -TimeoutSec 15 -ErrorAction Stop
-        $LatestSha = $LatestCommit.sha
-        $CurrentSha = "a9919007c92948c5d1c761733886c60cc48b1994"  # Buraya kendi sürümünün commit ID’sini yaz
-
-        if ($LatestSha -ne $CurrentSha) {
-            Write-Host "`n🚀 Yeni sürüm bulundu: $LatestSha" -ForegroundColor Green
-            Write-Log "Yeni sürüm bulundu: $LatestSha" "SUCCESS"
-        } else {
-            Write-Host "`n✅ Optemiz şu anda en güncel sürümde ($CurrentSha)" -ForegroundColor Green
-            Write-Log "Güncelleme kontrolü - En son sürüm kullanılıyor" "SUCCESS"
-        }
-    }
-    catch {
-        Write-Host "`n⚠️ Güncelleme kontrolü şu anda yapılamadı." -ForegroundColor Yellow
-        Write-Host "İnternet bağlantınızı kontrol edin veya daha sonra tekrar deneyin." -ForegroundColor Gray
-        Write-Log "Güncelleme kontrolü başarısız" "WARNING"
-    }
-}
-
-    catch {
-    Write-Host "`n❌ GitHub'a bağlanılamadı." -ForegroundColor Red
-    Write-Host "Hata: $($_.Exception.Message)" -ForegroundColor Yellow
-    Write-Host "`nOlası Çözümler:" -ForegroundColor Cyan
-    Write-Host "• Windows Defender'ı geçici olarak kapat" -ForegroundColor Gray
-    Write-Host "• Farklı bir internet bağlantısı dene (Mobil hotspot)" -ForegroundColor Gray
-    Write-Host "• Daha sonra tekrar dene" -ForegroundColor Gray
-    Write-Log "Güncelleme kontrolü başarısız" "WARNING"
-}
-
-
 # ====================== ANA DÖNGÜ ======================
 do {
     Show-MainMenu
@@ -226,9 +206,7 @@ do {
             if (Test-Path $HtmlLogPath) { Start-Process $HtmlLogPath }
         }
         "14" { Show-FinalReport }
-        "15" { 
-            Check-Update 
-        }
+        "15" { Check-Update }
         "0"  { 
             Write-Host "`nHoşça kalın 👑 Optemiz v$ScriptVersion" -ForegroundColor Yellow
             exit 
