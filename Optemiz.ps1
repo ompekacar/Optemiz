@@ -328,8 +328,18 @@ function Check-Update {
     #>
     Write-Host "`n🔄 Güncelleme kontrolü yapılıyor..." -ForegroundColor Cyan
     try {
-        if (-not (Test-InternetConnection)) {
+        # İnternet kontrolü - inline yap
+        $internetOK = $false
+        try {
+            $testConnection = Test-Connection -ComputerName 8.8.8.8 -Count 1 -ErrorAction Stop -TimeoutSeconds 3
+            $internetOK = $true
+        } catch {
+            $internetOK = $false
+        }
+        
+        if (-not $internetOK) {
             Write-Host "`n❌ İnternet bağlantısı yok. Güncelleme kontrolü yapılamıyor." -ForegroundColor Red
+            Write-Log "İnternet yok - Güncelleme kontrol yapılamadı" "WARNING" "UpdateCheck"
             return
         }
 
@@ -352,7 +362,7 @@ function Check-Update {
     } catch {
         Write-Host "`n⚠️  Güncelleme kontrolü sırasında hata oluştu." -ForegroundColor Yellow
         Write-Host "   İnternet bağlantınızı kontrol edin." -ForegroundColor Gray
-        Write-Log "Güncelleme kontrol hatası: $($_.Exception.Message)" "WARNING" "UpdateCheck"
+        Write-Log "Güncelleme kontrol hatası: $($_.Exception.Message)" "ERROR" "UpdateCheck"
     }
 }
 
