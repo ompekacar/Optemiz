@@ -1,3 +1,8 @@
+![PowerShell](https://img.shields.io/badge/PowerShell-5.1+-blue)
+![Windows](https://img.shields.io/badge/Windows-10%2F11-green)
+![License](https://img.shields.io/badge/License-MIT-yellow)
+[![Latest Release](https://img.shields.io/badge/Latest-v2.1.3-brightgreen)](https://github.com/ompekacar/Optemiz/releases/tag/v2.1.3)
+
 # 🚀 Optemiz v2.1.3
 
 **Windows için Tam Otomatik Sistem Bakım ve Optimizasyon Aracı**
