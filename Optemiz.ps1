@@ -11,6 +11,9 @@ $ModulePath = "$ScriptRoot\Modules"
 # Utils ilk yüklenmeli
 . "$ModulePath\Utils.ps1"
 
+# ✅ BU SATIRI EKLE:
+$global:ModulePath = $ModulePath
+
 chcp 65001 | Out-Null
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
@@ -56,14 +59,10 @@ function Import-OptemizModule {
 
 # ====================== SHOW FINAL REPORT (GELİŞTİRİLMİŞ - BEFORE/AFTER) ======================
 function Show-FinalReport {
-    <#
-    .SYNOPSIS
-    Bakım öncesi ve sonrası karşılaştırmalı rapor gösterir
-    Eğer $global:StartSnapshot varsa karşılaştırma yapar
-    #>
     param([double]$Duration = 0)
     
     try {
+        # Utils.ps1'den Get-SystemSnapshot'ı çağır
         $End = Get-SystemSnapshot
         
         # CPU kullanımı al
