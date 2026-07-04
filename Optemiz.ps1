@@ -1,4 +1,4 @@
-﻿# =============================================
+# =============================================
 # Optemiz v2.1.3 - FINAL (Geliştirilmiş)
 # Error handling, Before/After raporu, HTML footer
 # Geliştirici: Grok & Oğuz
@@ -10,9 +10,6 @@ $ModulePath = "$ScriptRoot\Modules"
 
 # Utils ilk yüklenmeli
 . "$ModulePath\Utils.ps1"
-
-# ✅ BU SATIRI EKLE:
-$global:ModulePath = $ModulePath
 
 chcp 65001 | Out-Null
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
@@ -59,10 +56,14 @@ function Import-OptemizModule {
 
 # ====================== SHOW FINAL REPORT (GELİŞTİRİLMİŞ - BEFORE/AFTER) ======================
 function Show-FinalReport {
+    <#
+    .SYNOPSIS
+    Bakım öncesi ve sonrası karşılaştırmalı rapor gösterir
+    Eğer $global:StartSnapshot varsa karşılaştırma yapar
+    #>
     param([double]$Duration = 0)
     
     try {
-        # Utils.ps1'den Get-SystemSnapshot'ı çağır
         $End = Get-SystemSnapshot
         
         # CPU kullanımı al
@@ -327,18 +328,8 @@ function Check-Update {
     #>
     Write-Host "`n🔄 Güncelleme kontrolü yapılıyor..." -ForegroundColor Cyan
     try {
-        # İnternet kontrolü - inline yap
-        $internetOK = $false
-        try {
-            $testConnection = Test-Connection -ComputerName 8.8.8.8 -Count 1 -ErrorAction Stop -TimeoutSeconds 3
-            $internetOK = $true
-        } catch {
-            $internetOK = $false
-        }
-        
-        if (-not $internetOK) {
+        if (-not (Test-InternetConnection)) {
             Write-Host "`n❌ İnternet bağlantısı yok. Güncelleme kontrolü yapılamıyor." -ForegroundColor Red
-            Write-Log "İnternet yok - Güncelleme kontrol yapılamadı" "WARNING" "UpdateCheck"
             return
         }
 
@@ -361,7 +352,7 @@ function Check-Update {
     } catch {
         Write-Host "`n⚠️  Güncelleme kontrolü sırasında hata oluştu." -ForegroundColor Yellow
         Write-Host "   İnternet bağlantınızı kontrol edin." -ForegroundColor Gray
-        Write-Log "Güncelleme kontrol hatası: $($_.Exception.Message)" "ERROR" "UpdateCheck"
+        Write-Log "Güncelleme kontrol hatası: $($_.Exception.Message)" "WARNING" "UpdateCheck"
     }
 }
 
