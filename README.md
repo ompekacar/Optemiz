@@ -1,4 +1,4 @@
-# 🚀 Optemiz v2.1.0
+# 🚀 Optemiz v2.1.3
 
 **Windows için Tam Otomatik Sistem Bakım ve Optimizasyon Aracı**
 

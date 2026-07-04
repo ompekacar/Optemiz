@@ -21,14 +21,22 @@ if not exist "%ScriptPath%" (
 echo [✓] Optemiz v2.1.0 scripti bulundu.
 echo.
 
+:: PowerShell sürümünü seç
 where pwsh >nul 2>nul
 if %errorlevel%==0 (set "PSExec=pwsh") else (set "PSExec=powershell")
 
 echo Yönetici izni isteniyor. Lütfen "Evet"e tıklayın...
 echo.
 
+:: Yönetici olarak çalıştır
 %PSExec% -NoProfile -ExecutionPolicy Bypass -Command ^
 "Start-Process %PSExec% -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File \"%ScriptPath%\"' -Verb RunAs -Wait"
+
+:: Hata kontrolü
+if %errorlevel% neq 0 (
+    echo.
+    echo ⚠ Bir hata oluştu. Detay için yukarıdaki kırmızı satırı inceleyin.
+)
 
 echo.
 echo Optemiz v2.1.0 kapatıldı. İyi günler dileriz 👑
