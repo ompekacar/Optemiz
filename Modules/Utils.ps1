@@ -1,4 +1,4 @@
-# =============================================
+﻿# =============================================
 # Utils.ps1 - Optemiz v2.1.3 (Geliştirilmiş - FINAL)
 # Admin kontrol, error handling, merkezi menü
 # =============================================
@@ -191,9 +191,9 @@ function Show-ModuleMenu {
     
     do {
         Clear-Host
-        Write-Host "`n╔═══════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
+        Write-Host "`n╔════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
         Write-Host "║  $Title" -ForegroundColor Cyan
-        Write-Host "╚═══════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+        Write-Host "╚════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
         Write-Host ""
         
         # Seçenekleri sırayla göster
@@ -355,6 +355,7 @@ function Start-SystemMonitoring {
         Write-Log "Sistem izleme başlatılamadı: $($_.Exception.Message)" "ERROR" "Monitor"
     }
 }
+
 # ====================== HTML RAPOR FOOTER ======================
 function Close-HtmlReport {
     <#
@@ -401,4 +402,4 @@ $@( if ($global:OperationCount -gt 0) { [math]::Round(($global:SuccessCount / $g
 
 # ====================== BAŞLANGIÇ LOG ======================
 Write-Log "Optemiz v2.1.3 başarıyla başlatıldı" "SUCCESS" "System" "Admin: $(Test-AdminRights)"
-Write-Log "═════════════════════════════════════════" "INFO""System" ""
+Write-Log "═════════════════════════════════════════" "INFO" "System" ""
