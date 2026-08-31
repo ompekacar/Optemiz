@@ -1,6 +1,6 @@
-# =============================================
-# Optemiz v2.1.3 - FINAL (Geliştirilmiş)
-# Error handling, Before/After raporu, HTML footer
+﻿# =============================================
+# Optemiz.ps1 - ANA SCRIPT v2.1.3 FINAL
+# Tam Otomatik Sistem Bakım Aracı
 # Geliştirici: Grok & Oğuz
 # =============================================
 
@@ -9,20 +9,27 @@ $ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ModulePath = "$ScriptRoot\Modules"
 
 # Utils ilk yüklenmeli
+if (-not (Test-Path "$ModulePath\Utils.ps1")) {
+    Write-Host "`n❌ HATA: Utils.ps1 bulunamadı!" -ForegroundColor Red
+    Write-Host "   Lütfen Modules klasöründe Utils.ps1 dosyasının olduğundan emin olun." -ForegroundColor Yellow
+    Start-Sleep -Seconds 3
+    exit 1
+}
+
 . "$ModulePath\Utils.ps1"
 
 chcp 65001 | Out-Null
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
-Write-Log "Optemiz v$ScriptVersion başlatıldı" "SUCCESS"
+Write-Log "Optemiz v$ScriptVersion başlatıldı" "SUCCESS" "Core"
 
 # ====================== GİRİŞ EKRANI ======================
 Clear-Host
 Write-Host "`n" -ForegroundColor Cyan
-Write-Host "╔═════════════════════════════════════════════════════════════╗" -ForegroundColor Magenta
+Write-Host "╔════════════════════════════════════════════════════════════╗" -ForegroundColor Magenta
 Write-Host "║           🚀 OPTEMIZ v$ScriptVersion - FINAL                          ║" -ForegroundColor White
 Write-Host "║          Güçlü ve Tam Otomatik Sistem Bakım Aracı          ║" -ForegroundColor Magenta
-Write-Host "╚═════════════════════════════════════════════════════════════╝" -ForegroundColor Magenta
+Write-Host "╚════════════════════════════════════════════════════════════╝" -ForegroundColor Magenta
 Write-Host "   Geliştirici : Grok & Oğuz" -ForegroundColor DarkCyan
 Write-Host "   Versiyon    : $ScriptVersion (Final) | Tarih: $(Get-Date -Format 'dd.MM.yyyy')" -ForegroundColor DarkCyan
 Write-Host ""
@@ -31,7 +38,7 @@ Write-Host ""
 function Import-OptemizModule {
     <#
     .SYNOPSIS
-    Optemiz modüllerini dinamik olarak yükler
+    Optemiz modüllerini dinamik olarak yükler ve çalıştırır
     #>
     param([string]$ModuleName)
     
@@ -40,7 +47,7 @@ function Import-OptemizModule {
         try {
             Write-Host "📦 Yükleniyor: $ModuleName..." -ForegroundColor Cyan
             . $FullPath
-            Write-Log "$ModuleName modülü yüklendi" "SUCCESS" "Core"
+            Write-Log "$ModuleName modülü yüklendi ve çalıştırıldı" "SUCCESS" "Core"
             return $true
         } catch {
             Write-Host "✗ $ModuleName yüklenirken hata!" -ForegroundColor Red
@@ -59,7 +66,6 @@ function Show-FinalReport {
     <#
     .SYNOPSIS
     Bakım öncesi ve sonrası karşılaştırmalı rapor gösterir
-    Eğer $global:StartSnapshot varsa karşılaştırma yapar
     #>
     param([double]$Duration = 0)
     
@@ -76,9 +82,9 @@ function Show-FinalReport {
         }
 
         Clear-Host
-        Write-Host "`n╔═════════════════════════════════════════════════════════════╗" -ForegroundColor Green
+        Write-Host "`n╔════════════════════════════════════════════════════════════╗" -ForegroundColor Green
         Write-Host "║               🚀 OPTEMIZ BAKIM RAPORU v$ScriptVersion             ║" -ForegroundColor Green
-        Write-Host "╚═════════════════════════════════════════════════════════════╝" -ForegroundColor Green
+        Write-Host "╚════════════════════════════════════════════════════════════╝" -ForegroundColor Green
         Write-Host ""
         
         Write-Host "📅 Tarih           : $(Get-Date -Format 'dd MMMM yyyy - HH:mm')" -ForegroundColor Cyan
@@ -130,7 +136,7 @@ function Show-FinalReport {
             
         } else {
             # İlk kez çalıştırılıyor (snapshot yok)
-            Write-Host "═══════════════════════════ SİSTEM DURUMU ═════════════════════════════════" -ForegroundColor Yellow
+            Write-Host "═══════════════════════════════════ SİSTEM DURUMU ════════════════════════════════════" -ForegroundColor Yellow
             Write-Host ""
             Write-Host "🧠 MEMORY (RAM):" -ForegroundColor White
             Write-Host "   Mevcut Durumu  : $($End.FreeRAM_GB) GB boş" -ForegroundColor Green
@@ -142,7 +148,7 @@ function Show-FinalReport {
         Write-Host ""
         Write-Host "⚙️  CPU KULLANIMI   : $cpuUsage %" -ForegroundColor Green
         Write-Host ""
-        Write-Host "═══════════════════════════════════════════════════════════════════════════════" -ForegroundColor Cyan
+        Write-Host "════════════════════════════════════════════════════════════════════════════════════════" -ForegroundColor Yellow
         
         # Log dosyası bilgisi
         $logFile = "$ScriptRoot\Logs\optimization.html"
@@ -154,11 +160,6 @@ function Show-FinalReport {
         
         Write-Host ""
         Write-Host "✅ Bakım tamamlandı!" -ForegroundColor Green
-        
-        if ($Duration -lt 5) {
-            Write-Host "   💡 Daha kapsamlı sonuçlar için 'Klasik Tam Bakım' (11) seçeneğini deneyin." -ForegroundColor Yellow
-        }
-        
         Write-Host "   💡 Yeniden başlatmanız önerilir." -ForegroundColor Yellow
         
         Write-Log "Final rapor gösterildi" "SUCCESS" "Optemiz"
@@ -168,21 +169,20 @@ function Show-FinalReport {
     }
 }
 
-# ====================== AKILLI ULTRA OTOMATİK BAKIM (GELİŞTİRİLMİŞ) ======================
+# ====================== AKILLI ULTRA OTOMATİK BAKIM ======================
 function Start-UltraAutoMaintenance {
     <#
     .SYNOPSIS
     Hiçbir soru sormadan tüm optimizasyonları otomatik olarak yapan mod
-    Progress bar gösterir ve Before/After raporu verir
     #>
     Clear-Host
     Write-Host "`n" -ForegroundColor Magenta
-    Write-Host "╔═════════════════════════════════════════════════════════════╗" -ForegroundColor Magenta
-    Write-Host "║          🔥 ULTRA OTOMATİK BAKIM BAŞLATILIYOR 🔥          ║" -ForegroundColor Red
-    Write-Host "╚═════════════════════════════════════════════════════════════╝" -ForegroundColor Magenta
+    Write-Host "╔════════════════════════════════════════════════════════════╗" -ForegroundColor Red
+    Write-Host "║          🔥 ULTRA OTOMATİK BAKIM BAŞLATILIYOR 🔥           ║" -ForegroundColor Red
+    Write-Host "╚════════════════════════════════════════════════════════════╝" -ForegroundColor Red
     Write-Host ""
     Write-Host "✓ Admin kontrolü   : Başarılı" -ForegroundColor Green
-    Write-Host "✓ Modüller yüklü  : Tamam" -ForegroundColor Green
+    Write-Host "✓ Modüller yüklı  : Tamam" -ForegroundColor Green
     Write-Host "⏳ Sistem monit.    : Başlıyor..." -ForegroundColor Yellow
     Write-Host ""
     
@@ -192,7 +192,6 @@ function Start-UltraAutoMaintenance {
     Write-Host "📊 Sistem durumu kaydedildi. Bakım başlıyor..." -ForegroundColor Cyan
     Start-Sleep -Seconds 2
 
-    $StartTime = Get-Date
     $TotalStart = Get-Date
 
     # Tüm görevler
@@ -202,7 +201,6 @@ function Start-UltraAutoMaintenance {
                 Write-Log "SFC taraması başlatılıyor..." "INFO" "UltraAuto"
                 sfc /scannow 2>&1 | Out-Null
                 
-                # AKILLI DISM KONTROLÜ
                 Write-Log "DISM Kontrolü yapılıyor..." "INFO" "UltraAuto"
                 $dismHealth = DISM /Online /Cleanup-Image /CheckHealth 2>&1
                 
@@ -221,7 +219,11 @@ function Start-UltraAutoMaintenance {
         @{Name="Cleanup"; Display="🧹 Temizlik ve Optimizasyon"; Action={ 
             try {
                 Write-Log "Geçici dosyalar temizleniyor..." "INFO" "UltraAuto"
-                Remove-Item "$env:TEMP\*", "C:\Windows\Temp\*", "C:\Windows\Prefetch\*" -Recurse -Force -EA SilentlyContinue
+                @("$env:TEMP\*", "C:\Windows\Temp\*", "C:\Windows\Prefetch\*") | ForEach-Object {
+                    if (Test-Path $_) {
+                        Remove-Item $_ -Recurse -Force -EA SilentlyContinue
+                    }
+                }
                 cleanmgr.exe /sagerun:1 2>&1 | Out-Null
                 Write-Log "Temizlik tamamlandı" "SUCCESS" "UltraAuto"
             } catch {
@@ -315,6 +317,7 @@ function Start-UltraAutoMaintenance {
     
     Write-Host ""
     Write-Log "Ultra Otomatik Bakım tamamlandı - Süre: $Duration dakika" "SUCCESS" "UltraAuto"
+    Close-HtmlReport
     
     # Final rapor göster
     Show-FinalReport -Duration $Duration
@@ -359,10 +362,10 @@ function Check-Update {
 # ====================== ANA MENÜ ======================
 function Show-MainMenu {
     Clear-Host
-    Write-Host "`n╔═════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
+    Write-Host "`n╔════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
     Write-Host "║               🚀 OPTEMIZ v$ScriptVersion - ANA MENÜ                  ║" -ForegroundColor White
     Write-Host "║            Tam Otomatik Sistem Bakım Aracı                  ║" -ForegroundColor Magenta
-    Write-Host "╚═════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+    Write-Host "╚════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
     Write-Host ""
 
     Write-Host "   1.  Sistem Taraması ve Onarım"           -ForegroundColor Cyan
@@ -396,16 +399,16 @@ do {
     Write-Host ""
 
     switch ($choice) {
-        "1"  { Import-OptemizModule "SystemScan"; Write-Log "SystemScan modülü çalıştırıldı" "INFO" "Core" }
-        "2"  { Import-OptemizModule "Cleanup"; Write-Log "Cleanup modülü çalıştırıldı" "INFO" "Core" }
-        "3"  { Import-OptemizModule "PerformanceTweaks"; Write-Log "PerformanceTweaks modülü çalıştırıldı" "INFO" "Core" }
-        "4"  { Import-OptemizModule "Privacy"; Write-Log "Privacy modülü çalıştırıldı" "INFO" "Core" }
-        "5"  { Import-OptemizModule "NetworkOptimization"; Write-Log "NetworkOptimization modülü çalıştırıldı" "INFO" "Core" }
-        "6"  { Import-OptemizModule "GamingOptimization"; Write-Log "GamingOptimization modülü çalıştırıldı" "INFO" "Core" }
-        "7"  { Import-OptemizModule "DriverFix"; Write-Log "DriverFix modülü çalıştırıldı" "INFO" "Core" }
-        "8"  { Import-OptemizModule "RAMDiagnostics"; Write-Log "RAMDiagnostics modülü çalıştırıldı" "INFO" "Core" }
-        "9"  { Import-OptemizModule "DiskRepair"; Write-Log "DiskRepair modülü çalıştırıldı" "INFO" "Core" }
-        "10" { Import-OptemizModule "BSODAnalyzer"; Write-Log "BSODAnalyzer modülü çalıştırıldı" "INFO" "Core" }
+        "1"  { Import-OptemizModule "SystemScan" }
+        "2"  { Import-OptemizModule "Cleanup" }
+        "3"  { Import-OptemizModule "PerformanceTweaks" }
+        "4"  { Import-OptemizModule "Privacy" }
+        "5"  { Import-OptemizModule "NetworkOptimization" }
+        "6"  { Import-OptemizModule "GamingOptimization" }
+        "7"  { Import-OptemizModule "DriverFix" }
+        "8"  { Import-OptemizModule "RAMDiagnostics" }
+        "9"  { Import-OptemizModule "DiskRepair" }
+        "10" { Import-OptemizModule "BSODAnalyzer" }
         
         "11" { 
             Write-Host "🚀 Klasik Tam Bakım Modu Başlatılıyor..." -ForegroundColor Magenta
@@ -419,6 +422,7 @@ do {
                 Import-OptemizModule $m
             }
             $duration = [math]::Round(((Get-Date) - $startTime).TotalMinutes, 1)
+            Close-HtmlReport
             
             Show-FinalReport -Duration $duration
         }
@@ -443,14 +447,14 @@ do {
         
         "0"  { 
             Write-Host ""
-            Write-Host "╔═════════════════════════════════════════════════════════════╗" -ForegroundColor Yellow
-            Write-Host "║                                                             ║" -ForegroundColor Yellow
+            Write-Host "╔════════════════════════════════════════════════════════════╗" -ForegroundColor Yellow
+            Write-Host "║                                                            ║" -ForegroundColor Yellow
             Write-Host "║              Hoşça kalın! 👑 Optemiz v$ScriptVersion        ║" -ForegroundColor Yellow
-            Write-Host "║                                                             ║" -ForegroundColor Yellow
+            Write-Host "║                                                            ║" -ForegroundColor Yellow
             Write-Host "║     Sistem bakım işlemleri için bizi tercih ettiğiniz    ║" -ForegroundColor Yellow
             Write-Host "║                 için teşekkürler! 🙏                        ║" -ForegroundColor Yellow
-            Write-Host "║                                                             ║" -ForegroundColor Yellow
-            Write-Host "╚═════════════════════════════════════════════════════════════╝" -ForegroundColor Yellow
+            Write-Host "║                                                            ║" -ForegroundColor Yellow
+            Write-Host "╚════════════════════════════════════════════════════════════╝" -ForegroundColor Yellow
             Write-Host ""
             Write-Log "Optemiz kapatıldı" "SUCCESS" "System"
             Write-Log "═════════════════════════════════════════" "INFO" "System" ""
