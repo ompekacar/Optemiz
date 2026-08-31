@@ -1,4 +1,4 @@
-﻿# =============================================
+# =============================================
 # Utils.ps1 - Optemiz v2.1.3 (Geliştirilmiş - FINAL)
 # Admin kontrol, error handling, merkezi menü
 # =============================================
@@ -191,9 +191,9 @@ function Show-ModuleMenu {
     
     do {
         Clear-Host
-        Write-Host "`n╔════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
+        Write-Host "`n╔════════════════════════════════════════════════════════════╗" -ForegroundColor Green
         Write-Host "║  $Title" -ForegroundColor Cyan
-        Write-Host "╚════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+        Write-Host "╚════════════════════════════════════════════════════════════╝" -ForegroundColor Green
         Write-Host ""
         
         # Seçenekleri sırayla göster
@@ -202,7 +202,7 @@ function Show-ModuleMenu {
         }
         
         Write-Host "   0. Ana Menüye Dön" -ForegroundColor Red
-        Write-Host "`n" -ForegroundColor Cyan
+        Write-Host "`n════════════════════════════════════════════════════════════" -ForegroundColor Green
         $choice = Read-Host "   Seçiminiz"
         
         if ($choice -eq "0") { break }
@@ -363,6 +363,13 @@ function Close-HtmlReport {
     HTML raporunu kapatır ve özet istatistikleri ekler
     #>
     try {
+        # Başarı oranını hesapla
+        $SuccessRate = if ($global:OperationCount -gt 0) { 
+            [math]::Round(($global:SuccessCount / $global:OperationCount) * 100, 1) 
+        } else { 
+            0 
+        }
+        
         $HtmlFooter = @"
     </table>
     
@@ -372,9 +379,7 @@ function Close-HtmlReport {
             <span class="label">Toplam İşlem:</span> <span class="value">$($global:OperationCount)</span><br>
             <span class="label">Başarılı:</span> <span class="value" style="color: #00ff88;">$($global:SuccessCount)</span><br>
             <span class="label">Hata:</span> <span class="value" style="color: #ff6666;">$($global:ErrorCount)</span><br>
-            <span class="label">Başarı Oranı:</span> <span class="value">
-$@( if ($global:OperationCount -gt 0) { [math]::Round(($global:SuccessCount / $global:OperationCount) * 100, 1) } else { 0 })%
-</span>
+            <span class="label">Başarı Oranı:</span> <span class="value">$($SuccessRate)%</span>
         </p>
     </div>
     
