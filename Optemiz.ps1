@@ -363,8 +363,8 @@ function Check-Update {
 function Show-MainMenu {
     Clear-Host
     Write-Host "`n╔════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-    Write-Host "║               🚀 OPTEMIZ v$ScriptVersion - ANA MENÜ                  ║" -ForegroundColor White
-    Write-Host "║            Tam Otomatik Sistem Bakım Aracı                  ║" -ForegroundColor Magenta
+    Write-Host "║               🚀 OPTEMIZ v$ScriptVersion - ANA MENÜ                 ║" -ForegroundColor White
+    Write-Host "║            Tam Otomatik Sistem Bakım Aracı                 ║" -ForegroundColor Magenta
     Write-Host "╚════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
     Write-Host ""
 
